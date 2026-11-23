@@ -8,7 +8,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ទាញយកម៉ូដែល silueta (43MB) ទុកជាមុនពេល Build
 RUN python -c "from rembg import new_session; new_session('silueta')"
 
 COPY . .
