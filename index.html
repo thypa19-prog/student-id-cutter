@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កម្មវិធីកាត់រូបកាតសិស្ស (Mobile & Cloud)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Suwannaphum:wght@400;700&display=swap');
+        body { font-family: 'Suwannaphum', serif; }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center py-4 px-3 min-h-screen">
+
+    <div class="max-w-lg w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-blue-700 p-5 text-white text-center">
+            <h1 class="text-xl font-bold">កម្មវិធីកាត់រូប និងតម្រឹមខ្នាតកាតសិស្ស</h1>
+            <p class="text-xs text-blue-100 mt-1">ប្រើបានទាំងលើទូរស័ព្ទ និងកុំព្យូទ័រ</p>
+        </div>
+        
+        <div class="p-5">
+            <div class="mb-4">
+                <label class="block text-sm font-bold mb-2 text-gray-700">១. ថតរូបផ្ទាល់ ឬជ្រើសរើសរូបថតសិស្ស៖</label>
+                <input type="file" id="fileInput" class="w-full border border-gray-300 p-2 rounded-lg bg-gray-50 text-sm" accept="image/*">
+            </div>
+
+            <button id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-4 rounded-xl shadow-md transition mb-3">
+                🚀 កាត់ផ្ទៃខាងក្រោយ
+            </button>
+
+            <p id="status" class="text-center font-bold text-sm text-gray-600 mt-2 mb-3"></p>
+
+            <div id="editorControls" class="hidden bg-gray-50 p-4 rounded-xl border border-gray-200 mb-5 space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">២. ពណ៌ផ្ទៃខាងក្រោយ៖</label>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" onclick="setBgColor('#0f4c9c')" class="px-3 py-2 rounded-lg text-white text-xs font-bold shadow-sm" style="background-color: #0f4c9c;">ខៀវកាត</button>
+                        <button type="button" onclick="setBgColor('#1d4ed8')" class="px-3 py-2 rounded-lg text-white text-xs font-bold shadow-sm" style="background-color: #1d4ed8;">ខៀវស្រាល</button>
+                        <button type="button" onclick="setBgColor('#dc2626')" class="px-3 py-2 rounded-lg text-white text-xs font-bold shadow-sm" style="background-color: #dc2626;">ក្រហម</button>
+                        <button type="button" onclick="setBgColor('#ffffff')" class="px-3 py-2 rounded-lg text-gray-800 text-xs font-bold shadow-sm border border-gray-300" style="background-color: #ffffff;">ស</button>
+                        <input type="color" id="colorPicker" value="#0f4c9c" class="w-9 h-9 rounded cursor-pointer border-0 p-0">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">៣. ខ្នាតរូបថត៖</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" id="btnOriginal" onclick="setRatio('original')" class="ratio-btn bg-blue-600 text-white font-bold py-2 px-2 rounded-lg text-xs border border-blue-600">ទំហំដើម</button>
+                        <button type="button" id="btn3x4" onclick="setRatio('3x4')" class="ratio-btn bg-white text-gray-700 font-bold py-2 px-2 rounded-lg text-xs border border-gray-300">ខ្នាត 3x4</button>
+                        <button type="button" id="btn4x6" onclick="setRatio('4x6')" class="ratio-btn bg-white text-gray-700 font-bold py-2 px-2 rounded-lg text-xs border border-gray-300">ខ្នាត 4x6</button>
+                    </div>
+                </div>
+
+                <div id="cropSliders" class="hidden pt-3 border-t border-gray-200 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-blue-700">សារ៉េទីតាំងរូបក្នុងស៊ុម៖</span>
+                        <button type="button" onclick="resetCrop()" class="text-xs bg-gray-200 text-gray-700 px-2.5 py-1 rounded">ដើមវិញ</button>
+                    </div>
+                    
+                    <div>
+                        <label class="flex justify-between text-xs text-gray-600 mb-1">
+                            <span>ពង្រីក / បង្រួម (Zoom)</span>
+                            <span id="zoomLabel">100%</span>
+                        </label>
+                        <input type="range" id="zoomSlider" min="0.5" max="2.5" step="0.02" value="1" class="w-full">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">ឆ្វេង / ស្តាំ</label>
+                            <input type="range" id="xSlider" min="-400" max="400" step="5" value="0" class="w-full">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">លើ / ក្រោម</label>
+                            <input type="range" id="ySlider" min="-400" max="400" step="5" value="0" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center bg-gray-200/60 p-3 rounded-xl">
+                <canvas id="canvas" class="max-h-[400px] max-w-full hidden border-2 border-gray-300 shadow-md bg-white"></canvas>
+            </div>
+            
+            <button id="downloadBtn" class="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-3.5 px-4 rounded-xl mt-5 hidden shadow-lg transition">
+                📥 រក្សាទុករូបភាពចូលទូរស័ព្ទ
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const statusText = document.getElementById('status');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const editorControls = document.getElementById('editorControls');
+        const cropSliders = document.getElementById('cropSliders');
+        
+        const colorPicker = document.getElementById('colorPicker');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const xSlider = document.getElementById('xSlider');
+        const ySlider = document.getElementById('ySlider');
+        const zoomLabel = document.getElementById('zoomLabel');
+
+        let cutoutImg = null;
+        let currentBgColor = '#0f4c9c';
+        let currentRatio = 'original';
+
+        function setBgColor(color) {
+            currentBgColor = color;
+            colorPicker.value = color;
+            renderCanvas();
+        }
+
+        colorPicker.addEventListener('input', (e) => {
+            currentBgColor = e.target.value;
+            renderCanvas();
+        });
+
+        function setRatio(ratio) {
+            currentRatio = ratio;
+            document.querySelectorAll('.ratio-btn').forEach(btn => {
+                btn.className = "ratio-btn bg-white text-gray-700 font-bold py-2 px-2 rounded-lg text-xs border border-gray-300";
+            });
+            const activeBtn = ratio === 'original' ? 'btnOriginal' : (ratio === '3x4' ? 'btn3x4' : 'btn4x6');
+            document.getElementById(activeBtn).className = "ratio-btn bg-blue-600 text-white font-bold py-2 px-2 rounded-lg text-xs border border-blue-600";
+
+            if (ratio === 'original') {
+                cropSliders.classList.add('hidden');
+            } else {
+                cropSliders.classList.remove('hidden');
+            }
+            renderCanvas();
+        }
+
+        function resetCrop() {
+            zoomSlider.value = 1;
+            xSlider.value = 0;
+            ySlider.value = 0;
+            zoomLabel.innerText = "100%";
+            renderCanvas();
+        }
+
+        [zoomSlider, xSlider, ySlider].forEach(slider => {
+            slider.addEventListener('input', () => {
+                zoomLabel.innerText = Math.round(zoomSlider.value * 100) + "%";
+                renderCanvas();
+            });
+        });
+
+        function renderCanvas() {
+            if (!cutoutImg) return;
+
+            if (currentRatio === 'original') {
+                canvas.width = cutoutImg.width;
+                canvas.height = cutoutImg.height;
+                ctx.fillStyle = currentBgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(cutoutImg, 0, 0);
+            } else {
+                canvas.width = currentRatio === '3x4' ? 900 : 1200;
+                canvas.height = currentRatio === '3x4' ? 1200 : 1800;
+
+                ctx.fillStyle = currentBgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const baseScale = Math.max(canvas.width / cutoutImg.width, canvas.height / cutoutImg.height);
+                const scale = baseScale * parseFloat(zoomSlider.value);
+                const drawWidth = cutoutImg.width * scale;
+                const drawHeight = cutoutImg.height * scale;
+
+                const x = (canvas.width - drawWidth) / 2 + parseFloat(xSlider.value);
+                const y = (canvas.height - drawHeight) / 2 + parseFloat(ySlider.value);
+
+                ctx.drawImage(cutoutImg, x, y, drawWidth, drawHeight);
+            }
+        }
+
+        // បង្រួមទំហំរូបពីកាមេរ៉ាទូរស័ព្ទមកត្រឹម 1600px មុនពេលផ្ញើ ដើម្បីកុំឱ្យយឺត ឬគាំង Server
+        function resizeImageBeforeUpload(file, maxSize = 1600) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                img.onload = () => {
+                    URL.revokeObjectURL(url);
+                    let w = img.width;
+                    let h = img.height;
+
+                    if (w <= maxSize && h <= maxSize) {
+                        resolve(file);
+                        return;
+                    }
+
+                    if (w > h) {
+                        h = Math.round((h * maxSize) / w);
+                        w = maxSize;
+                    } else {
+                        w = Math.round((w * maxSize) / h);
+                        h = maxSize;
+                    }
+
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = w;
+                    tempCanvas.height = h;
+                    tempCanvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    tempCanvas.toBlob((blob) => resolve(blob || file), 'image/jpeg', 0.92);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    resolve(file);
+                };
+                img.src = url;
+            });
+        }
+
+        submitBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("សូមថតរូប ឬជ្រើសរើសរូបថតជាមុនសិន!");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
+            statusText.innerText = "⏳ កំពុងរៀបចំ និងបញ្ជូនទៅ AI កាត់រូប...";
+            statusText.className = "text-center font-bold text-sm text-blue-600 mt-2 mb-3";
+
+            try {
+                const optimizedFile = await resizeImageBeforeUpload(file, 1600);
+                const formData = new FormData();
+                formData.append('file', optimizedFile, 'photo.jpg');
+
+                const response = await fetch('/api/cut-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`បរាជ័យ (Error ${response.status})៖ សូមពិនិត្យ Logs លើ Hugging Face!`);
+                }
+
+                const blob = await response.blob();
+                const imgUrl = URL.createObjectURL(blob);
+                
+                const img = new Image();
+                img.onload = () => {
+                    cutoutImg = img;
+                    resetCrop();
+                    renderCanvas();
+                    
+                    statusText.innerText = "✓ កាត់រួចរាល់! អាចប្តូរពណ៌ ឬខ្នាតខាងក្រោមបាន៖";
+                    statusText.className = "text-center font-bold text-sm text-green-600 mt-2 mb-3";
+                    
+                    editorControls.classList.remove('hidden');
+                    canvas.classList.remove('hidden');
+                    downloadBtn.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50');
+                    
+                    URL.revokeObjectURL(imgUrl);
+                };
+                img.src = imgUrl;
+
+            } catch (error) {
+                statusText.innerText = error.message;
+                statusText.className = "text-center font-bold text-sm text-red-600 mt-2 mb-3";
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `student-photo-${currentRatio}.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        });
+    </script>
+</body>
+</html>
