@@ -5,8 +5,6 @@ from rembg import remove, new_session
 import uvicorn
 
 app = FastAPI()
-
-# ប្រើម៉ូដែល silueta (43MB) ដើម្បីកុំឱ្យលើស RAM 512MB របស់ Render
 my_session = new_session("silueta")
 
 @app.get("/")
